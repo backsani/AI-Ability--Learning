@@ -1,0 +1,180 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:AiUsageTrainer.ViewModels"
+             xmlns:m="clr-namespace:AiUsageTrainer.Models"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             x:Class="AiUsageTrainer.Views.ResultView"
+             x:DataType="vm:ResultViewModel">
+
+  <UserControl.Resources>
+    <DataTemplate x:Key="BulletTemplate" x:DataType="sys:String">
+      <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,5">
+        <TextBlock Grid.Column="0" Text="·" Margin="0,0,8,0"
+                   Foreground="{DynamicResource AppMuted}" />
+        <SelectableTextBlock Grid.Column="1" Text="{Binding}" LineHeight="21" />
+      </Grid>
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <Grid RowDefinitions="*,Auto">
+
+    <ScrollViewer Grid.Row="0">
+      <StackPanel MaxWidth="860" Margin="28,32" Spacing="18" HorizontalAlignment="Center">
+
+        <Border Classes="card">
+          <StackPanel Spacing="8">
+            <TextBlock Classes="h1" FontSize="22" Text="{Binding Evaluation.Title}" />
+            <TextBlock Classes="muted" Text="{Binding MetaLine}" />
+            <SelectableTextBlock FontSize="14" FontWeight="SemiBold" LineHeight="22"
+                                 Text="{Binding Evaluation.ProblemRecap}" />
+            <Border Classes="chip" HorizontalAlignment="Left">
+              <TextBlock FontSize="12" FontWeight="SemiBold" Text="{Binding Report.GoodCriteriaLabel}" />
+            </Border>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="chip" IsVisible="{Binding HasNotice}" Padding="12,9">
+          <SelectableTextBlock FontSize="12" Foreground="{DynamicResource AppMuted}"
+                               Text="{Binding Notice}" />
+        </Border>
+
+        <!-- 총평 -->
+        <Border Classes="card">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="h2" Text="총평" />
+            <SelectableTextBlock LineHeight="24" Text="{Binding Evaluation.OverallComment}" />
+          </StackPanel>
+        </Border>
+
+        <!-- 6단계 점검 -->
+        <TextBlock Classes="h2" Text="프롬프트 6단계 점검" Margin="2,6,0,0" />
+
+        <ItemsControl ItemsSource="{Binding ProcessSteps}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="m:ProcessStepEval">
+              <Border Classes="card" Margin="0,0,0,10">
+                <StackPanel Spacing="8">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Grid.Column="0" Classes="h3" Text="{Binding Step}" />
+                    <Border Grid.Column="1" Classes="chip">
+                      <TextBlock FontSize="11" FontWeight="SemiBold" Text="{Binding Rating}" />
+                    </Border>
+                  </Grid>
+                  <SelectableTextBlock Classes="muted" LineHeight="20"
+                                       Text="{Binding Evidence, StringFormat='근거: {0}'}" />
+                  <SelectableTextBlock LineHeight="20"
+                                       Foreground="{DynamicResource AppAccent}"
+                                       Text="{Binding Suggestion, StringFormat='제안: {0}'}" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- 5개 항목 -->
+        <TextBlock Classes="h2" Text="평가 항목" Margin="2,6,0,0" />
+
+        <ItemsControl ItemsSource="{Binding Criteria}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="m:CriterionEval">
+              <Border Classes="card" Margin="0,0,0,10">
+                <StackPanel Spacing="8">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Grid.Column="0" Classes="h3" Text="{Binding Name}" />
+                    <Border Grid.Column="1" Classes="chip">
+                      <TextBlock FontSize="11" FontWeight="SemiBold" Text="{Binding Rating}" />
+                    </Border>
+                  </Grid>
+                  <SelectableTextBlock LineHeight="21" Text="{Binding Comment}" />
+                  <SelectableTextBlock IsVisible="{Binding HasTip}"
+                                       Foreground="{DynamicResource AppAccent}" LineHeight="20"
+                                       Text="{Binding Tip, StringFormat='다음에 시도해볼 것: {0}'}" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- 막연한 위임 -->
+        <Border Classes="card" IsVisible="{Binding HasBannedPhrases}">
+          <StackPanel Spacing="8">
+            <TextBlock Classes="h2" Foreground="{DynamicResource AppWarn}" Text="막연하게 위임한 표현" />
+            <ItemsControl ItemsSource="{Binding BannedPhrases}" ItemTemplate="{StaticResource BulletTemplate}" />
+          </StackPanel>
+        </Border>
+
+        <!-- 잘 쓴 프롬프트 -->
+        <Border Classes="card" IsVisible="{Binding HasGoodPrompts}">
+          <StackPanel Spacing="8">
+            <TextBlock Classes="h2" Foreground="{DynamicResource AppGood}" Text="잘 쓴 프롬프트" />
+            <ItemsControl ItemsSource="{Binding GoodPrompts}" ItemTemplate="{StaticResource BulletTemplate}" />
+          </StackPanel>
+        </Border>
+
+        <!-- 결과물 검토 -->
+        <Border Classes="card" IsVisible="{Binding HasDeliverableCheck}">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="h2" Text="결과물 검토" />
+            <SelectableTextBlock LineHeight="24" Text="{Binding Evaluation.DeliverableCheck}" />
+          </StackPanel>
+        </Border>
+
+        <!-- 문제 의도 -->
+        <Border Classes="card" IsVisible="{Binding HasHiddenCriteria}">
+          <StackPanel Spacing="8">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="h2" Text="이 문제가 실제로 확인하려던 것" />
+              <TextBlock Classes="muted" Text="세션 동안에는 보이지 않았던 채점자 전용 기준입니다." />
+            </StackPanel>
+            <ItemsControl ItemsSource="{Binding HiddenCriteria}" ItemTemplate="{StaticResource BulletTemplate}" />
+          </StackPanel>
+        </Border>
+
+        <!-- 다음에 시도해볼 것 -->
+        <Border Classes="card" IsVisible="{Binding HasAdvice}">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="h2" Text="다음에 시도해볼 것" />
+            <SelectableTextBlock LineHeight="24" Text="{Binding Evaluation.FinalAdvice}" />
+          </StackPanel>
+        </Border>
+
+        <!-- 대화 전문 -->
+        <Button Classes="link" HorizontalAlignment="Left"
+                Content="{Binding TranscriptButtonText}"
+                Command="{Binding ToggleTranscriptCommand}" />
+
+        <Border Classes="card" IsVisible="{Binding ShowTranscript}">
+          <ItemsControl ItemsSource="{Binding Transcript}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="m:ChatMessage">
+                <StackPanel Spacing="4" Margin="0,0,0,14">
+                  <TextBlock Classes="muted" FontWeight="SemiBold" Text="{Binding RoleLabel}" />
+                  <SelectableTextBlock Text="{Binding Text}" LineHeight="22" />
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="1" Background="{DynamicResource AppSurface}"
+            BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,1,0,0"
+            Padding="28,14">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+          <Button Content="홈" Command="{Binding HomeCommand}" />
+          <Button Content="지난 연습" Command="{Binding HistoryCommand}" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+          <Button Content="작업 폴더 열기" IsEnabled="{Binding WorkspaceExists}" Command="{Binding OpenWorkspaceCommand}" />
+          <Button Content="평가지 폴더 열기" Command="{Binding OpenReportsFolderCommand}" />
+          <Button Content="마크다운으로 내보내기" Command="{Binding ExportCommand}" />
+          <Button Classes="primary" Content="같은 조합으로 다시 연습"
+                  Command="{Binding PracticeAgainCommand}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

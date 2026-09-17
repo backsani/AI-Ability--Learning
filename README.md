@@ -1,6 +1,6 @@
 # AI 활용 능력 연습 프로그램
 
-넥토리얼 AI 활용 역량평가 대비용 데스크톱 앱. `넥토리얼 AI활용 역량평가 분석.md`의 분석을 기준으로
+AI 활용 능력 평가 대비용 데스크톱 앱. 최근 기업 채용에 도입되는 AI 활용 역량평가 방식을 기준으로
 실무형 문제를 출제하고, 컴퓨터에 설치된 **에이전트 CLI**(기본값 Claude Code)를 협업 AI로 붙여
 실제로 파일을 읽고 쓰고 실행하며 함께 풀게 한 뒤, 학습을 위한 평가지를 남긴다.
 **사용자를 채점하는 도구가 아니라 연습 도구**임을 항상 기준으로 삼는다.
@@ -10,11 +10,11 @@
 빌드 산출물은 저장소에 포함하지 않으므로 먼저 빌드한다. (.NET 9 SDK 필요)
 
 ```
-cd NextorialTrainer
+cd AiUsageTrainer
 dotnet publish -c Release -o ..\app
 ```
 
-그 다음부터는 `실행.bat` 으로 실행하거나 `app\NextorialTrainer.exe` 를 직접 실행하면 된다.
+그 다음부터는 `실행.bat` 으로 실행하거나 `app\AiUsageTrainer.exe` 를 직접 실행하면 된다.
 
 연습에 쓸 CLI 에이전트는 [설정]에서 고른다(기본값 Claude Code, 유일하게 실제 파일 조작까지
 검증됨). 실행 파일은 PATH와 알려진 설치 위치에서 자동으로 찾고, 못 찾으면 경로를 직접
@@ -82,7 +82,7 @@ Claude Code CLI로 직접 검증한 내용:
 ## 저장 위치
 
 ```
-%APPDATA%\NextorialTrainer\
+%APPDATA%\AiUsageTrainer\
   settings.json     설정 (선택한 CLI, CLI별 경로·모델·인자, 테마, 직접 추가한 분야)
   reports\          평가지 (.json, 마크다운 내보내기 시 .md)
   workspaces\<id>\  세션별 작업 폴더 — 협업 AI가 실제로 읽고 쓴 파일이 그대로 남는다
@@ -95,7 +95,7 @@ Claude Code CLI로 직접 검증한 내용:
 ## 구조
 
 ```
-NextorialTrainer/
+AiUsageTrainer/
   Common/       ObservableObject, RelayCommand, JsonBlock(응답에서 JSON 추출), Utf8
   Models/       AppSettings, PracticeConfig, ChatMessage, ProblemBrief, PracticeReport,
                 ProblemType(4유형 카탈로그), DomainTypeStatus, CliAgentProfile

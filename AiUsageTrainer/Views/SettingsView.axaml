@@ -1,0 +1,195 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:AiUsageTrainer.ViewModels"
+             xmlns:m="clr-namespace:AiUsageTrainer.Models"
+             x:Class="AiUsageTrainer.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+  <Grid RowDefinitions="*,Auto">
+
+    <ScrollViewer Grid.Row="0">
+      <StackPanel MaxWidth="760" Margin="28,32" Spacing="18" HorizontalAlignment="Center">
+
+        <TextBlock Classes="h1" Text="설정" />
+
+        <!-- 어떤 CLI를 쓸지 -->
+        <Border Classes="card">
+          <StackPanel Spacing="14">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="h2" Text="연습에 사용할 CLI 에이전트" />
+              <TextBlock Classes="muted"
+                         Text="컴퓨터에 설치된 에이전트 CLI를 앱이 직접 실행해서 문제 출제·협업·평가를 진행합니다." />
+            </StackPanel>
+
+            <Grid ColumnDefinitions="*,Auto,Auto" Classes="gap8">
+              <ComboBox Grid.Column="0" HorizontalAlignment="Stretch"
+                        ItemsSource="{Binding Profiles}"
+                        SelectedItem="{Binding SelectedProfile}">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="m:CliAgentProfile">
+                    <TextBlock Text="{Binding DisplayName}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <Border Grid.Column="1" Classes="chip" VerticalAlignment="Center">
+                <TextBlock FontSize="11" Text="{Binding VerifiedLabel}" />
+              </Border>
+              <Border Grid.Column="2" Classes="chip" VerticalAlignment="Center">
+                <TextBlock FontSize="11" Text="{Binding CollabVerifiedLabel}" />
+              </Border>
+            </Grid>
+
+            <TextBlock Classes="muted" Text="{Binding AgentDescription}" />
+
+            <TextBox Text="{Binding CliPath}" Watermark="실행 파일 경로 (예: C:\Users\사용자\.local\bin\claude.exe)" />
+
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Content="자동 감지" Command="{Binding DetectCommand}" />
+              <Button Classes="primary" Content="연결 테스트" Command="{Binding TestCommand}" />
+            </StackPanel>
+
+            <TextBlock Classes="muted"
+                       Text="연결 테스트는 문제 출제·평가용(도구 없음) 경로만 확인합니다. 협업(파일 조작) 경로는 실제로 연습을 시작해서 확인하세요." />
+          </StackPanel>
+        </Border>
+
+        <!-- 모델 -->
+        <Border Classes="card" IsVisible="{Binding ShowModels}">
+          <StackPanel Spacing="16">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="h2" Text="모델" />
+              <TextBlock Classes="muted" Text="{Binding ModelHint}" />
+            </StackPanel>
+
+            <Grid ColumnDefinitions="160,*" RowDefinitions="Auto,Auto" Classes="gapv14">
+              <TextBlock Grid.Row="0" Grid.Column="0" Classes="h3" Text="협업 모델" VerticalAlignment="Center" />
+              <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                <ComboBox Width="220" ItemsSource="{Binding ModelChoices}"
+                          SelectedItem="{Binding CollabModel}" />
+                <TextBlock Classes="muted" VerticalAlignment="Center"
+                           Text="문제 풀이 대화에 사용 (파일 조작 가능)" />
+              </StackPanel>
+
+              <TextBlock Grid.Row="1" Grid.Column="0" Classes="h3" Text="평가 모델" VerticalAlignment="Center" />
+              <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                <ComboBox Width="220" ItemsSource="{Binding ModelChoices}"
+                          SelectedItem="{Binding EvalModel}" />
+                <TextBlock Classes="muted" VerticalAlignment="Center"
+                           Text="문제 출제·평가지 작성에 사용" />
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- 화면 -->
+        <Border Classes="card">
+          <StackPanel Spacing="14">
+            <TextBlock Classes="h2" Text="화면" />
+            <Grid ColumnDefinitions="160,*">
+              <TextBlock Grid.Column="0" Classes="h3" Text="화면 모드" VerticalAlignment="Center" />
+              <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Left"
+                        ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme}" />
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- 고급 -->
+        <Expander Header="고급 — CLI 호출 방식 직접 수정" HorizontalAlignment="Stretch">
+          <StackPanel Spacing="16" Margin="0,14,0,0">
+
+            <TextBlock Classes="muted"
+                       Text="에이전트 CLI는 옵션이 자주 바뀝니다. 프리셋이 맞지 않으면 여기서 고치면 되고, 앱을 다시 빌드할 필요는 없습니다. 사용 가능한 치환자: {sessionId} {model} {systemPrompt} {prompt}. 대괄호 [ ]로 묶은 부분은 안의 값이 비면 통째로 빠집니다." />
+
+            <StackPanel Spacing="6">
+              <TextBlock Classes="h3" Text="모델 목록 (쉼표로 구분)" />
+              <TextBox Text="{Binding ModelsCsv}"
+                       Watermark="비워두면 프리셋 기본 목록을 씁니다. 예: gpt-5, gpt-5-mini" />
+              <TextBlock Classes="muted" Text="여기에 넣은 이름이 위의 협업/평가 모델 드롭다운에 나타납니다." />
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+              <TextBlock Classes="h3" Text="세션 방식" />
+              <ComboBox Width="200" HorizontalAlignment="Left"
+                        ItemsSource="{Binding SessionModes}" SelectedItem="{Binding SessionMode}" />
+              <TextBlock Classes="muted" Text="{Binding SessionModeHint}" />
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+              <TextBlock Classes="h3" Text="프롬프트 전달 방법" />
+              <ComboBox Width="200" HorizontalAlignment="Left"
+                        ItemsSource="{Binding PromptVias}" SelectedItem="{Binding PromptVia}" />
+              <TextBlock Classes="muted"
+                         Text="Stdin은 표준 입력으로 넣습니다(긴 대화에 안전). Arg는 인자 템플릿의 {prompt} 자리에 넣습니다." />
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+              <TextBlock Classes="h3" Text="응답 형식" />
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <ComboBox Width="200" ItemsSource="{Binding ReplyFormats}" SelectedItem="{Binding ReplyFormat}" />
+                <TextBox Width="200" Text="{Binding ReplyJsonField}" IsVisible="{Binding IsJsonReply}"
+                         Watermark="응답이 담긴 JSON 필드" VerticalAlignment="Center" />
+              </StackPanel>
+              <TextBlock Classes="muted" Text="Raw는 출력 전체를 답변으로 봅니다. Json은 지정한 필드만 꺼냅니다." />
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+              <TextBlock Classes="h3" Text="문제 출제·평가용 첫 턴 인자 (도구 없음)" />
+              <TextBox Text="{Binding FirstArgs}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="70" />
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+              <TextBlock Classes="h3" Text="문제 출제·평가용 이어가기 인자 (세션 방식이 Resume일 때만)" />
+              <TextBox Text="{Binding ResumeArgs}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="70" />
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+              <TextBlock Classes="h3" Text="협업(파일 조작) 첫 턴 인자" />
+              <TextBlock Classes="muted" Text="비워두면 위 문제 출제·평가용 인자를 그대로 씁니다 (도구 없이 채팅만 됨)." />
+              <TextBox Text="{Binding CollabFirstArgs}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="70" />
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+              <TextBlock Classes="h3" Text="협업(파일 조작) 이어가기 인자" />
+              <TextBox Text="{Binding CollabResumeArgs}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="70" />
+            </StackPanel>
+
+            <Button Classes="danger" Content="이 CLI의 고급 설정 초기화" HorizontalAlignment="Left"
+                    Command="{Binding ResetAdvancedCommand}" />
+          </StackPanel>
+        </Expander>
+
+        <!-- 저장 위치 -->
+        <Border Classes="card">
+          <StackPanel Spacing="12">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="h2" Text="저장 위치" />
+              <TextBlock Classes="muted" Text="평가지, 설정, 세션별 작업 폴더가 저장되는 곳입니다." />
+            </StackPanel>
+            <SelectableTextBlock FontSize="12" Foreground="{DynamicResource AppMuted}"
+                                 Text="{Binding DataFolder}" />
+            <Button Content="폴더 열기" HorizontalAlignment="Left"
+                    Command="{Binding OpenDataFolderCommand}" />
+          </StackPanel>
+        </Border>
+
+        <Border Classes="chip" IsVisible="{Binding HasNotice}" Padding="12,9">
+          <SelectableTextBlock FontSize="12" Foreground="{DynamicResource AppMuted}"
+                               Text="{Binding Notice}" />
+        </Border>
+
+        <Border Classes="card" IsVisible="{Binding HasTestOutput}">
+          <SelectableTextBlock FontFamily="Consolas, Courier New" FontSize="11"
+                               Text="{Binding TestOutput}" />
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="1" Background="{DynamicResource AppSurface}"
+            BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,1,0,0"
+            Padding="28,14">
+      <Button Classes="primary" Content="저장하고 나가기" HorizontalAlignment="Right" MinWidth="150"
+              Command="{Binding BackCommand}" />
+    </Border>
+  </Grid>
+</UserControl>
