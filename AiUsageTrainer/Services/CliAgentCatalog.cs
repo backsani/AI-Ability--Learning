@@ -51,21 +51,28 @@ public static class CliAgentCatalog
             SupportsSystemPromptFlag = true,
 
             // Eval turns (problem generation / evaluation): no tools, one shot, fixed empty cwd.
+            // --safe-mode disables CLAUDE.md/skills/plugins/hooks/MCP for this process only (auth,
+            // model selection, tools and permissions are unaffected) — confirmed live: a CLAUDE.md
+            // instruction to prefix every reply was obeyed without --safe-mode and ignored with it.
+            // Without this, a stray CLAUDE.md anywhere from the cwd up to the user's home directory
+            // could leak unrelated persona/context into the generated problem or the evaluation.
             FirstArgs = "-p --output-format json --session-id {sessionId} [--system-prompt {systemPrompt}] " +
-                        "[--model {model}] --tools \"\" --permission-prompts none --strict-mcp-config",
+                        "[--model {model}] --tools \"\" --permission-prompts none --safe-mode --strict-mcp-config",
             ResumeArgs = "-p --output-format json --resume {sessionId} [--system-prompt {systemPrompt}] " +
-                         "[--model {model}] --tools \"\" --permission-prompts none --strict-mcp-config",
+                         "[--model {model}] --tools \"\" --permission-prompts none --safe-mode --strict-mcp-config",
 
             // Collab turns (the practice conversation): tools on, permissions auto-approved,
             // confined to the session workspace folder (the process working directory).
             // --system-prompt-snapshot on means the persona survives --resume without resending
             // --system-prompt every turn (confirmed live: a resume turn with no --system-prompt
-            // still answered in character).
+            // still answered in character). --safe-mode here matters even more than for eval turns,
+            // since the collaborator has tools — an injected CLAUDE.md could otherwise change how
+            // it behaves (its own hooks, MCP servers, custom commands) during the user's practice.
             CollabFirstArgs = "-p --output-format json --session-id {sessionId} [--system-prompt {systemPrompt}] " +
                                "--system-prompt-snapshot on [--model {model}] --permission-mode bypassPermissions " +
-                               "--strict-mcp-config",
+                               "--safe-mode --strict-mcp-config",
             CollabResumeArgs = "-p --output-format json --resume {sessionId} [--model {model}] " +
-                                "--permission-mode bypassPermissions --strict-mcp-config",
+                                "--permission-mode bypassPermissions --safe-mode --strict-mcp-config",
 
             Models = { "sonnet", "opus", "haiku" },
             DefaultCollabModel = "sonnet",
