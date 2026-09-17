@@ -1,0 +1,151 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:NextorialTrainer.ViewModels"
+             x:Class="NextorialTrainer.Views.SetupView"
+             x:DataType="vm:SetupViewModel">
+
+  <Grid RowDefinitions="*,Auto">
+
+    <ScrollViewer Grid.Row="0">
+      <StackPanel MaxWidth="760" Margin="28,32" Spacing="20" HorizontalAlignment="Center">
+
+        <TextBlock Classes="h1" Text="연습 설정" />
+
+        <Border Classes="card">
+          <StackPanel Spacing="14">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="h2" Text="분야" />
+              <TextBlock Classes="muted" Text="여러 개를 고르면 그 안에서 조합을 골라 문제를 냅니다." />
+            </StackPanel>
+
+            <ItemsControl ItemsSource="{Binding Domains}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:DomainOption">
+                  <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}"
+                            Margin="0,0,18,4" MinWidth="170" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Grid ColumnDefinitions="*,Auto,Auto" Classes="gap8">
+              <TextBox Grid.Column="0" Text="{Binding NewDomain}"
+                       Watermark="직접 추가 (예: Rust, GraphQL API)" />
+              <Button Grid.Column="1" Content="추가" Command="{Binding AddDomainCommand}" />
+              <Button Grid.Column="2" Classes="danger" Content="선택 항목 삭제"
+                      ToolTip.Tip="직접 추가한 분야 중 체크된 것을 목록에서 지웁니다"
+                      Command="{Binding RemoveDomainCommand}" />
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="14">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="h2" Text="문제 유형" />
+              <TextBlock Classes="muted" Text="넥토리얼이 낼 것으로 추정되는 4가지 유형입니다." />
+            </StackPanel>
+
+            <ItemsControl ItemsSource="{Binding Types}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:TypeOption">
+                  <CheckBox IsChecked="{Binding IsSelected}" Margin="0,0,0,8">
+                    <StackPanel Spacing="1">
+                      <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                      <TextBlock Classes="muted" Text="{Binding ShortDesc}" />
+                    </StackPanel>
+                  </CheckBox>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="16">
+            <TextBlock Classes="h2" Text="진행 조건" />
+
+            <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto" Classes="gapv14">
+              <TextBlock Grid.Row="0" Grid.Column="0" Classes="h3" Text="난이도 기준" VerticalAlignment="Center" />
+              <ComboBox Grid.Row="0" Grid.Column="1" Width="260" HorizontalAlignment="Left"
+                        ItemsSource="{Binding Difficulties}" SelectedItem="{Binding Difficulty}" />
+
+              <TextBlock Grid.Row="1" Grid.Column="0" Classes="h3" Text="사용할 CLI" VerticalAlignment="Center" />
+              <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="{Binding AgentLabel}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Classes="link" Content="설정에서 변경" Command="{Binding SettingsCommand}" />
+              </StackPanel>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Spacing="14">
+              <CheckBox Content="목표 시간 설정" IsChecked="{Binding UseTargetTime}" />
+              <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding UseTargetTime}">
+                <Slider Minimum="15" Maximum="120" TickFrequency="5" IsSnapToTickEnabled="True"
+                        Width="200" Value="{Binding TargetMinutes}" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding TargetMinutes, StringFormat='{}{0}분'}" VerticalAlignment="Center" MinWidth="40" />
+              </StackPanel>
+            </StackPanel>
+            <TextBlock Classes="muted" IsVisible="{Binding !UseTargetTime}"
+                       Text="넥토리얼은 시간 제한이 공개되지 않았습니다. 필요하면 목표 시간을 켜서 감을 잡을 수 있습니다 (강제 종료되지는 않습니다)." />
+
+            <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto" Classes="gapv14"
+                  IsVisible="{Binding HasModels}">
+              <TextBlock Grid.Row="0" Grid.Column="0" Classes="h3" Text="협업 모델" VerticalAlignment="Center" />
+              <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                <ComboBox Width="200" ItemsSource="{Binding Models}" SelectedItem="{Binding CollabModel}" />
+                <TextBlock Classes="muted" VerticalAlignment="Center" Text="문제 풀이 대화용 (파일 조작 가능)" />
+              </StackPanel>
+
+              <TextBlock Grid.Row="1" Grid.Column="0" Classes="h3" Text="평가 모델" VerticalAlignment="Center" />
+              <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                <ComboBox Width="200" ItemsSource="{Binding Models}" SelectedItem="{Binding EvalModel}" />
+                <TextBlock Classes="muted" VerticalAlignment="Center" Text="문제 출제·평가지 작성용" />
+              </StackPanel>
+            </Grid>
+
+            <TextBlock Classes="danger" IsVisible="{Binding HasCollabWarning}" Text="{Binding CollabWarning}" />
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card" IsVisible="{Binding HasPlan}">
+          <StackPanel Spacing="10">
+            <Grid ColumnDefinitions="*,Auto,Auto" Classes="gap8">
+              <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Classes="h2" Text="이번 문제 조합" />
+                <TextBlock Classes="muted" Text="{Binding PlanHint}" />
+              </StackPanel>
+              <Button Grid.Column="1" Content="학습 현황" VerticalAlignment="Center"
+                      Command="{Binding ProgressCommand}" />
+              <Button Grid.Column="2" Content="다시 뽑기" VerticalAlignment="Center"
+                      Command="{Binding RerollCommand}" />
+            </Grid>
+
+            <Border Classes="chip" HorizontalAlignment="Left" Padding="12,8">
+              <StackPanel Spacing="2">
+                <TextBlock FontWeight="SemiBold" Text="{Binding Planned.DisplayLine}" />
+                <TextBlock Classes="muted" FontSize="11" Text="{Binding Planned.StateLabel}" />
+              </StackPanel>
+            </Border>
+            <TextBlock Classes="muted" Text="문제의 구체적인 내용은 연습을 시작해야 생성됩니다." />
+          </StackPanel>
+        </Border>
+
+        <TextBlock Classes="danger" IsVisible="{Binding HasError}" Text="{Binding Error}" />
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="1" Background="{DynamicResource AppSurface}"
+            BorderBrush="{DynamicResource AppBorder}" BorderThickness="0,1,0,0"
+            Padding="28,14">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Button Grid.Column="0" Content="뒤로" Command="{Binding BackCommand}" />
+        <Button Grid.Column="2" Classes="primary" Content="연습 시작" MinWidth="140"
+                Command="{Binding StartCommand}" />
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

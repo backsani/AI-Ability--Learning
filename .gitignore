@@ -1,0 +1,16 @@
+# 빌드 산출물 — 로컬 절대경로(사용자명, nuget 캐시 위치)가 박혀 있어 커밋하지 않는다
+bin/
+obj/
+app/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+
+# 디버그 심볼 — 소스 파일 경로가 임베드된다
+*.pdb
+
+# 개인 기획 메모 (로컬 전용)
+work.md

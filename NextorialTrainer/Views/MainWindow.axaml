@@ -1,0 +1,43 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:NextorialTrainer.ViewModels"
+        x:Class="NextorialTrainer.Views.MainWindow"
+        Title="AI 활용 능력 연습"
+        Width="1180" Height="840"
+        MinWidth="860" MinHeight="640"
+        FontFamily="Segoe UI, Malgun Gothic"
+        Background="{DynamicResource AppBg}"
+        WindowStartupLocation="CenterScreen">
+
+  <Grid RowDefinitions="Auto,*">
+
+    <Border Grid.Row="0"
+            Background="{DynamicResource AppSurface}"
+            BorderBrush="{DynamicResource AppBorder}"
+            BorderThickness="0,0,0,1"
+            Padding="18,10">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+          <Border Background="{DynamicResource AppAccent}" CornerRadius="6" Width="26" Height="26">
+            <TextBlock Text="AI" FontSize="11" FontWeight="Bold"
+                       Foreground="{DynamicResource AppAccentText}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <TextBlock Text="AI 활용 능력 연습" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+          <Button Classes="link" Content="홈" Command="{Binding GoHomeCommand}" />
+          <Button Classes="link" Content="학습 현황" Command="{Binding OpenProgressCommand}" />
+          <Button Classes="link" Content="지난 연습" Command="{Binding OpenHistoryCommand}" />
+          <Button Classes="link" Content="설정" Command="{Binding OpenSettingsCommand}" />
+          <Button Classes="link" Content="{Binding ThemeGlyph}" FontSize="15"
+                  ToolTip.Tip="라이트/다크 모드 전환"
+                  Command="{Binding ToggleThemeCommand}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <ContentControl Grid.Row="1" Content="{Binding CurrentPage}" />
+  </Grid>
+</Window>
